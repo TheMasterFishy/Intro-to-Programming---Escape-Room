@@ -1,3 +1,4 @@
+
 //establishes global variables
 var name;
 var lives;
@@ -12,7 +13,7 @@ onEvent("stopButton", "click", function( ) {
 });
 
 
-//intro screen activity
+//intro screens activity
 onEvent("playButton", "click", function( ) {
   setScreens("name");
   start = getTime();
@@ -29,7 +30,7 @@ onEvent("continueIntroButton","click", function(){
 });
 
 
-//activates when levels are clicked
+//activates when each of the levels are clicked
 onEvent("level1Button" ,"click", function (){
   checkPreviousLevels(1);
 });
@@ -37,11 +38,11 @@ onEvent("level1Button" ,"click", function (){
 onEvent("level2Button" ,"click", function (){
   checkPreviousLevels(2);
 });
-  
+ 
 onEvent("level3Button", "click", function( ) {
   checkPreviousLevels(3);
 });
-    
+   
 onEvent("level4Button", "click", function( ) {
   checkPreviousLevels(4);
 });
@@ -49,14 +50,14 @@ onEvent("level4Button", "click", function( ) {
 onEvent("Level5Button", "click", function(){
   checkPreviousLevels(5);
 });
-    
-//youfailed screen
-//sends back to levels lobby
+   
+//sends back to levels lobby from the you failed screen
 onEvent("levelsButtonFailed", "click", function(){
   setScreen("levelsScreen");
 });
 
 //level 1 code
+//userCode is input code from user
 var userCode;
 //hides unnessceary elements
 hideElement("nextButton2Level1");
@@ -125,7 +126,7 @@ hideElement("rebusPuzzle2Check");
 hideElement("rebusPuzzleCheck3");
 hideElement("rebusPuzzle3");
 hideElement("levelsButtonlev2");
-//starts game
+//starts level
 onEvent("beginButtonLevel2", "click", function (){
   hideElement("beginButtonLevel2");
   showElement("rebusPuzzle1");
@@ -259,7 +260,7 @@ onEvent("doorUnknownButton", "click", function( ) {
     setText("introTextLevel3", "Congratulations, you went through the door unoticed and made it past this level!");
   }
 });
-//possible third option
+//action based on possible third choice
 onEvent("leftButton", "click", function( ) {
   removeLives();
   setText("rightButton", "Go back and turn right");
@@ -275,14 +276,14 @@ onEvent("rightButton", "click", function( ) {
   setProperty("level3Button", "background-color", "#20a215");
   setText("introTextLevel3", "Congratulations you successfully made it past the airvents!");
 });
-//sends back to level
+//sends back to levels screen
 onEvent("levelsButtonlev3", "click", function( ) {
   setScreen("levelsScreen");
 });
 
 //level4code
 var input;
-//checks answer to riddle 
+//checks answer to riddle
 hideElement("levelsButtonlev4");
 onEvent("checkButtonLevel4", "click", function( ) {
   input = (getText("userInputRiddle")).toLowerCase();
@@ -295,7 +296,7 @@ onEvent("checkButtonLevel4", "click", function( ) {
     setText("outputTextLevel4", "Try again");
   }
 });
-//sends back to level
+//sends back to levels screen
 onEvent("levelsButtonlev4", "click", function(){
   setScreen("levelsScreen");
 });
@@ -326,7 +327,7 @@ onEvent("squareLevel5", "click", function( ) {
  
 
 
-//functions
+//universal functions
 //checks to be sure previous levels are done
 function checkPreviousLevels (levelnumber){
   if (levelsCompleted[levelnumber -2] == false){
@@ -335,11 +336,11 @@ function checkPreviousLevels (levelnumber){
     setScreens("Level"+levelnumber);
   }
 }
-//sets screen
+//sets correct screen
 function setScreens (level){
   setScreen(level + "Screen");
 }
-//removes lives after mistakes
+//removes lives after mistakes by user
 function removeLives(){
   if (lives == 2){
     hideElement("lives2");
