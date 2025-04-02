@@ -1,0 +1,367 @@
+//establishes global variables
+var name;
+var lives;
+var start;
+var stop;
+var levelsCompleted = [false,false,false,false,false];
+//var stopCommand;
+
+//gives user instructions to stop program
+onEvent("stopButton", "click", function( ) {
+  setText("levelsText", "Exit the website to stop or restart");
+});
+
+
+//intro screen activity
+onEvent("playButton", "click", function( ) {
+  setScreens("name");
+  start = getTime();
+});
+
+onEvent("continueNameButton", "click", function( ) {
+  setScreens("intro");
+  name = getText("nameInput");
+  setText("introText", name + ", you are stuck in the house of the greatest tech villain of all time, The Technorobo, who is attempting to breach federal databases of the country Techtopia and it is your job to escape and help prevent him from doing this!");
+});
+
+onEvent("continueIntroButton","click", function(){
+  setScreens("levels");
+});
+
+
+//activates when levels are clicked
+onEvent("level1Button" ,"click", function (){
+  checkPreviousLevels(1);
+});
+
+onEvent("level2Button" ,"click", function (){
+  checkPreviousLevels(2);
+});
+  
+onEvent("level3Button", "click", function( ) {
+  checkPreviousLevels(3);
+});
+    
+onEvent("level4Button", "click", function( ) {
+  checkPreviousLevels(4);
+});
+
+onEvent("Level5Button", "click", function(){
+  checkPreviousLevels(5);
+});
+    
+//youfailed screen
+//sends back to levels lobby
+onEvent("levelsButtonFailed", "click", function(){
+  setScreen("levelsScreen");
+});
+
+//level 1 code
+var userCode;
+//hides unnessceary elements
+hideElement("nextButton2Level1");
+hideElement("Level1Code");
+hideElement("nextButton3Level1");
+hideElement("userInputCode");
+hideElement("checkButtonLevel1");
+hideElement("continueButtonLevel1");
+hideElement("outputTextArea1");
+//guides user through story
+onEvent("nextButtonLevel1", "click", function( ) {
+  hideElement("nextButtonLevel1");
+  setText("Level1Text", '"Well, well, well, look who it is, my best friend. Just so you know, you will never stop me from breaching the database and taking over the world! Ha Ha Ha" \n -Technorobo says');
+  setProperty("Level1Text", "height", 300);
+  setProperty("Level1Text", "font-size", 20);
+  showElement("nextButton2Level1");
+});
+
+onEvent("nextButton2Level1", "click", function( ) {
+  showElement("nextButton3Level1");
+  hideElement("nextButton2Level1");
+  setProperty("Level1Text", "height", 350);
+  setProperty("Level1Text", "width", 300);
+  setProperty("Level1Text", "x", 10);
+  setText("Level1Text", "As he walks away, a slip of paper falls out of his pocket with some numbers. You realize this code is written in binary form and you will need to translate it into decimal numbers. You are struggling to figure what these digits are for when you realize there is number pad to unlock the cell you are in!");
+});
+
+onEvent("nextButton3Level1", "click", function( ) {
+  hideElement("nextButton3Level1");
+  setProperty("Level1Text", "height", 100);
+  showElement("Level1Code");
+  showElement("checkButtonLevel1");
+  showElement("userInputCode");
+  showElement("outputTextArea1");
+  setText("Level1Text", "Convert this Binary Code into Decimal Number and Type it Below!");
+});
+//checks the correctrness of user provided code
+onEvent("checkButtonLevel1", "click", function( ) {
+  userCode = getNumber("userInputCode");
+  if (userCode == 4970){
+    setText("outputTextArea1","Congratulations, you escaped from your cell!");
+    showElement("continueButtonLevel1");
+    setProperty("level1Button", "background-color", "#20a215");
+    levelsCompleted[0] = true;
+  } else {
+    setText("outputTextArea1","Try again");
+  }
+});
+
+//sends back to lobby
+onEvent("continueButtonLevel1", "click", function( ) {
+  setScreen("levelsScreen");
+});
+
+
+//level 2 code
+var phrase;
+//hides unnessceary elements
+hideElement("rebusPuzzle1");
+hideElement("rebusPuzzleTitle");
+hideElement("rebusPuzzleInput");
+hideElement("rebusPuzzle1Check");
+hideElement("tryAgainLevel2");
+hideElement("rebusPuzzle2");
+hideElement("rebusPuzzle2Check");
+hideElement("rebusPuzzleCheck3");
+hideElement("rebusPuzzle3");
+hideElement("levelsButtonlev2");
+//starts game
+onEvent("beginButtonLevel2", "click", function (){
+  hideElement("beginButtonLevel2");
+  showElement("rebusPuzzle1");
+  showElement("rebusPuzzle1Check");
+  showElement("rebusPuzzleInput");
+  showElement("rebusPuzzleTitle");
+  showElement("tryAgainLevel2");
+  hideElement("level2Info");
+
+});
+//checks rebus puzzle answers
+onEvent("rebusPuzzle1Check", "click", function( ) {
+  phrase = getText("rebusPuzzleInput");
+  if((phrase.toUpperCase())=="TOP SECRET" || (phrase.toUpperCase())=="TOPSECRET"){
+    hideElement("rebusPuzzle1");
+    hideElement("rebusPuzzle1Check");
+    setText("tryAgainLevel2", "");
+    setText("rebusPuzzleInput", "");
+    setText("rebusPuzzleTitle", "Rebus Puzzle #2");
+    showElement("rebusPuzzle2");
+    showElement("rebusPuzzle2Check");
+  } else {
+    setText("tryAgainLevel2", "Try again");
+  }
+});
+
+onEvent("rebusPuzzle2Check", "click", function( ) {
+  phrase = (getText("rebusPuzzleInput")).toLowerCase();
+  if(phrase == "four wheel drive" ||phrase == "fourwheeldrive"||phrase == "four wheeldrive" ||phrase == "fourwheel drive"){
+    hideElement("rebusPuzzle2");
+    hideElement("rebusPuzzle2Check");
+    setText("tryAgainLevel2", "");
+    setText("rebusPuzzleInput", "");
+    setText("rebusPuzzleTitle", "Rebus Puzzle #3");
+    showElement("rebusPuzzle3");
+    showElement("rebusPuzzleCheck3");
+    setProperty("tryAgainLevel2", "font-size", 22);
+  } else {
+    setText("tryAgainLevel2", "Try again, remember to only use letters");
+    setProperty("tryAgainLevel2", "font-size", 12);
+  }
+});
+
+onEvent("rebusPuzzleCheck3", "click", function( ) {
+  phrase = (getText("rebusPuzzleInput")).toLowerCase();
+  if(phrase == "too little too late" ||phrase == "too little, too late"||phrase == "toolittletoolate" ||phrase == "to little to late"||phrase == "toolittle toolate"||phrase == "tolittle tolate"){
+    hideElement("rebusPuzzle3");
+    hideElement("rebusPuzzleCheck3");
+    hideElement("rebusPuzzleInput");
+    setText("tryAgainLevel2", "Congratulations! Move on to the next level!");
+    hideElement("rebusPuzzleTitle");
+    setProperty("tryAgainLevel2", "font-size", 12);
+    showElement("levelsButtonlev2");
+    setProperty("level2Button", "background-color", "#20a215");
+    levelsCompleted[1]= true;
+  } else {
+    setText("tryAgainLevel2", "Try again");
+    setProperty("tryAgainLevel2", "font-size", 22);
+  }
+});
+//sends back to lobby
+onEvent("levelsButtonlev2", "click", function( ) {
+  setScreen("levelsScreen");
+});
+
+//level 3 code
+var randomChance;
+//hides unnescary elements
+hideElement("firstDoorLevel3");
+hideElement("secondDoorLevel3");
+hideElement("thirdDoorLevel3");
+hideElement("tryAgainLevel3");
+hideElement("airventsButton");
+hideElement("doorUnknownButton");
+hideElement("rightButton");
+hideElement("leftButton");
+hideElement("levelsButtonlev3");
+//begins game
+onEvent("beginButtonLevel3", "click", function( ) {
+  hideElement("beginButtonLevel3");
+  lives = 2;
+  setProperty("introTextLevel3", "height", 280);
+  showElement("firstDoorLevel3");
+  showElement("secondDoorLevel3");
+  showElement("thirdDoorLevel3");
+  showElement("tryAgainLevel3");
+  setText("introTextLevel3", "As soon as you escape the cell complex, you are met with three doors. In the first door: there is a room that is on fire. In the second door: there is a lion who has not eaten in 3 weeks. And in the third door, there is a vast ocean which goes on for hundreds of miles. Which door do you take to cross the path?");
+});
+//selects action based on choice
+onEvent("firstDoorLevel3", "click", function( ) {
+  removeLives();
+  hideElement("firstDoorLevel3");
+});
+onEvent("secondDoorLevel3", "click", function( ) {
+  hideElement("firstDoorLevel3");
+  hideElement("secondDoorLevel3");
+  hideElement("thirdDoorLevel3");
+  showElement("airventsButton");
+  hideElement("tryAgainLevel3");
+  showElement("doorUnknownButton");
+  setProperty("introTextLevel3", "height", 200);
+  setText("introTextLevel3", "Congrats! You have passed the tretcherous path! Now you see two options to pass through, the airvents or a door leading to an unknown room. Which will you choose?");
+});
+onEvent("thirdDoorLevel3", "click", function( ) {
+  removeLives();
+  hideElement("thirdDoorLevel3");
+});
+//action based on second choice
+onEvent("airventsButton", "click", function( ) {
+  hideElement("airventsButton");
+  hideElement("doorUnknownButton");
+  showElement("rightButton");
+  showElement("leftButton");
+  setText("introTextLevel3", "As you are crawling through the vents, you see a split in the path, one way leading left and one way leading right. Which way do you turn?");
+});
+
+onEvent("doorUnknownButton", "click", function( ) {
+  randomChance = randomNumber(0,1);
+  removeLives();
+  if(randomChance == 0){
+    hideElement("doorUnknownButton");
+    setProperty("airventsButton", "font-size", 12);
+    setText("airventsButton", "Go back and take the airvents");
+    setText("introTextLevel3", "Unfortunately, Technorobo's robot minions were in the room you entered and you got caught.");
+  } else {
+    hideElement("airventsButton");
+    hideElement("doorUnknownButton");
+    showElement("levelsButtonlev3");
+    levelsCompleted[2] = true;
+    setProperty("level3Button", "background-color", "#20a215");
+    setText("introTextLevel3", "Congratulations, you went through the door unoticed and made it past this level!");
+  }
+});
+//possible third option
+onEvent("leftButton", "click", function( ) {
+  removeLives();
+  setText("rightButton", "Go back and turn right");
+  hideElement("leftButton");
+  setText("introTextLevel3", "Unfortunately, as you are crawling through this path, you fall through the vent into Technorobo's bathroom and get caught!");
+});
+
+onEvent("rightButton", "click", function( ) {
+  hideElement("rightButton");
+  hideElement("leftButton");
+  showElement("levelsButtonlev3");
+  levelsCompleted[2] = true;
+  setProperty("level3Button", "background-color", "#20a215");
+  setText("introTextLevel3", "Congratulations you successfully made it past the airvents!");
+});
+//sends back to level
+onEvent("levelsButtonlev3", "click", function( ) {
+  setScreen("levelsScreen");
+});
+
+//level4code
+var input;
+//checks answer to riddle 
+hideElement("levelsButtonlev4");
+onEvent("checkButtonLevel4", "click", function( ) {
+  input = (getText("userInputRiddle")).toLowerCase();
+  showElement("levelsButtonlev4");
+  if(input == "clock" || input =="a clock"|| input == "aclock"){
+    levelsCompleted[3] = true;
+    setProperty("level4Button", "background-color", "#20a215");
+    setText("outputTextLevel4", "Congratulations! Go back the levels menu to complete your final challenge!");
+  } else{
+    setText("outputTextLevel4", "Try again");
+  }
+});
+//sends back to level
+onEvent("levelsButtonlev4", "click", function(){
+  setScreen("levelsScreen");
+});
+
+//level 5 code
+hideElement("squareLevel5");
+var clicks = 0;
+
+//starts the game
+onEvent("beginButtonLevel5", "click", function( ) {
+  showElement("squareLevel5");
+  setProperty("squareLevel5", "x", randomNumber(10,310));
+  setProperty("squareLevel5", "y", randomNumber(10,440));
+  hideElement("beginButtonLevel5");
+  hideElement("textLevel5");
+});
+//resets the square
+onEvent("squareLevel5", "click", function( ) {
+  setProperty("squareLevel5", "x", randomNumber(10,310));
+  setProperty("squareLevel5", "y", randomNumber(10,440));
+  clicks = clicks + 1;
+  if(clicks >= 10){
+    setScreen("finishScreen");
+    stop = getTime();
+    setText("time", "Time: " + ((stop-start)/1000) + " seconds");
+}
+});
+ 
+
+
+//functions
+//checks to be sure previous levels are done
+function checkPreviousLevels (levelnumber){
+  if (levelsCompleted[levelnumber -2] == false){
+    setText("levelsText", "You must compete the previous level before starting this one!");
+  } else {
+    setScreens("Level"+levelnumber);
+  }
+}
+//sets screen
+function setScreens (level){
+  setScreen(level + "Screen");
+}
+//removes lives after mistakes
+function removeLives(){
+  if (lives == 2){
+    hideElement("lives2");
+    lives = lives -1;
+    setText("tryAgainLevel3", "Try Again!");
+  }else {
+    setScreen("youFailedScreen");
+    hideElement("doorUnknownButton");
+    hideElement("leftButton");
+    hideElement("rightButton");
+    hideElement("airventsButton");
+    showElement("beginButtonLevel3");
+    hideElement("firstDoorLevel3");
+    hideElement("secondDoorLevel3");
+    hideElement("thirdDoorLevel3");
+    hideElement("tryAgainLevel3");
+    showElement("lives2");
+    setText("rightButton", "Right");
+    setText("airventsButton", "Airvents");
+    setText("introTextLevel3", "Now that you've escaped the prison complex, you have to find a way to get out of Technorobo's house! But be careful you only have three lives on each attempt! Good Luck!");
+    lives =2;
+  }
+}
+
+
