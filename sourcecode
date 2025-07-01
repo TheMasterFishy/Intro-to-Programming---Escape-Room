@@ -1,368 +1,750 @@
-
-//establishes global variables
-var name;
-var lives;
-var start;
-var stop;
-var levelsCompleted = [false,false,false,false,false];
-//var stopCommand;
-
-//gives user instructions to stop program
-onEvent("stopButton", "click", function( ) {
-  setText("levelsText", "Exit the website to stop or restart");
-});
+#libraries used to construct project
+from tkinter import *
+from datetime import datetime
+import random
+from PIL import Image, ImageTk
+import pandas as pd 
+import time
 
 
-//intro screens activity
-onEvent("playButton", "click", function( ) {
-  setScreens("name");
-  start = getTime();
-});
+#global variables
+levelsCompleted =[False, False, False, False, False]
+lives = 5
+levelsScreen = None
+levelsScreenText = None
+levelsNotifications = None
+name = None
+riddleInput = None
+level2nextButton = None
+riddleCount = 0
+correct = 0
+totalRiddleCount = None
+levelsButton2 = None
+action = None
+choice1 = None
+choice2 = None
+choice3 = None
 
-onEvent("continueNameButton", "click", function( ) {
-  setScreens("intro");
-  name = getText("nameInput");
-  setText("introText", name + ", you are stuck in the house of the greatest tech villain of all time, The Technorobo, who is attempting to breach federal databases of the country Techtopia and it is your job to escape and help prevent him from doing this!");
-});
+#table storing riddles of different difficulties
+riddleTable = pd.read_csv("C:/Users/sanja/OneDrive/Desktop/riddlesTable (1).csv")
 
-onEvent("continueIntroButton","click", function(){
-  setScreens("levels");
-});
+#global variables
+riddlesToUse = pd.DataFrame(columns = ['RIDDLE', 'DIFFICULTY', 'ANSWER', 'COMPLETED'])
+easyButton2 = None
+mediumButton2 = None
+hardButton2 = None
+level2Text = None
+answer = ""
+question = None
+riddleInput = None
+riddleCheck = None
 
+#checks answers to riddles in level2
+def sortRiddles(difficulty):
+    global riddleTable
+    global riddlesToUse
+    global riddleCount
+    global totalRiddleCount
+    easyButton2.place_forget()
+    mediumButton2.place_forget()
+    hardButton2.place_forget()
+    level2nextButton.place(relx = 0.5, anchor=CENTER, rely =0.75, relwidth=0.2, relheight=0.1)
+    level2Text.config(text = "Now that you've made your decision...it's up to you to answer these riddles.\n Remember: each wrong answer causes you to lose a life.\n You can use uppercase or lowercase, but ensure that you are spelling correctly! \nGood Luck!")
+    if difficulty == 'easy':
+        riddleCount =3
+        totalRiddleCount =3
+    elif difficulty == 'medium':
+        riddleCount =2
+        totalRiddleCount =2
+    elif difficulty == 'hard':
+        riddleCount =1
+        totalRiddleCount =1
+    for row in range(len(riddleTable)):
+        if riddleTable.iloc[row, 1] == difficulty:
+            riddlesToUse.loc[len(riddlesToUse)] = (riddleTable.iloc[row, 0], riddleTable.iloc[row, 1], riddleTable.iloc[row, 2], riddleTable.iloc[row, 3])
+            
 
-//activates when each of the levels are clicked
-onEvent("level1Button" ,"click", function (){
-  checkPreviousLevels(1);
-});
-
-onEvent("level2Button" ,"click", function (){
-  checkPreviousLevels(2);
-});
- 
-onEvent("level3Button", "click", function( ) {
-  checkPreviousLevels(3);
-});
-   
-onEvent("level4Button", "click", function( ) {
-  checkPreviousLevels(4);
-});
-
-onEvent("Level5Button", "click", function(){
-  checkPreviousLevels(5);
-});
-   
-//sends back to levels lobby from the you failed screen
-onEvent("levelsButtonFailed", "click", function(){
-  setScreen("levelsScreen");
-});
-
-//level 1 code
-//userCode is input code from user
-var userCode;
-//hides unnessceary elements
-hideElement("nextButton2Level1");
-hideElement("Level1Code");
-hideElement("nextButton3Level1");
-hideElement("userInputCode");
-hideElement("checkButtonLevel1");
-hideElement("continueButtonLevel1");
-hideElement("outputTextArea1");
-//guides user through story
-onEvent("nextButtonLevel1", "click", function( ) {
-  hideElement("nextButtonLevel1");
-  setText("Level1Text", '"Well, well, well, look who it is, my best friend. Just so you know, you will never stop me from breaching the database and taking over the world! Ha Ha Ha" \n -Technorobo says');
-  setProperty("Level1Text", "height", 300);
-  setProperty("Level1Text", "font-size", 20);
-  showElement("nextButton2Level1");
-});
-
-onEvent("nextButton2Level1", "click", function( ) {
-  showElement("nextButton3Level1");
-  hideElement("nextButton2Level1");
-  setProperty("Level1Text", "height", 350);
-  setProperty("Level1Text", "width", 300);
-  setProperty("Level1Text", "x", 10);
-  setText("Level1Text", "As he walks away, a slip of paper falls out of his pocket with some numbers. You realize this code is written in binary form and you will need to translate it into decimal numbers. You are struggling to figure what these digits are for when you realize there is number pad to unlock the cell you are in!");
-});
-
-onEvent("nextButton3Level1", "click", function( ) {
-  hideElement("nextButton3Level1");
-  setProperty("Level1Text", "height", 100);
-  showElement("Level1Code");
-  showElement("checkButtonLevel1");
-  showElement("userInputCode");
-  showElement("outputTextArea1");
-  setText("Level1Text", "Convert this Binary Code into Decimal Number and Type it Below!");
-});
-//checks the correctrness of user provided code
-onEvent("checkButtonLevel1", "click", function( ) {
-  userCode = getNumber("userInputCode");
-  if (userCode == 4970){
-    setText("outputTextArea1","Congratulations, you escaped from your cell!");
-    showElement("continueButtonLevel1");
-    setProperty("level1Button", "background-color", "#20a215");
-    levelsCompleted[0] = true;
-  } else {
-    setText("outputTextArea1","Try again");
-  }
-});
-
-//sends back to lobby
-onEvent("continueButtonLevel1", "click", function( ) {
-  setScreen("levelsScreen");
-});
+#starts the game after user enters their name
+def startButtonClick():
+    global name
+    name = nameInput.get()
+    openLevelsScreen()
 
 
-//level 2 code
-var phrase;
-//hides unnessceary elements
-hideElement("rebusPuzzle1");
-hideElement("rebusPuzzleTitle");
-hideElement("rebusPuzzleInput");
-hideElement("rebusPuzzle1Check");
-hideElement("tryAgainLevel2");
-hideElement("rebusPuzzle2");
-hideElement("rebusPuzzle2Check");
-hideElement("rebusPuzzleCheck3");
-hideElement("rebusPuzzle3");
-hideElement("levelsButtonlev2");
-//starts level
-onEvent("beginButtonLevel2", "click", function (){
-  hideElement("beginButtonLevel2");
-  showElement("rebusPuzzle1");
-  showElement("rebusPuzzle1Check");
-  showElement("rebusPuzzleInput");
-  showElement("rebusPuzzleTitle");
-  showElement("tryAgainLevel2");
-  hideElement("level2Info");
+#opens the levels screen and displays all correlated informatiom
+def openLevelsScreen():
+    global levelsScreen
+    global levelsNotifications
+    global levelsScreenText
+    global name
+    levelsScreen = Toplevel(startScreen)
+    levelsScreen.state('zoomed')
+    levelsScreen.config(bg='#B5C9DB')
+    levelsScreenText = Label(levelsScreen, borderwidth = 3, font = ('Helvetica', 22), relief = 'solid', text = ("Welcome " + name +"! \nThe world of TechTopia is in great danger! We need your help! \nYou are currently stuck in the base of the infamous villain...\nTechnorobo! He is trying to breach databases \n around the world to obtain personal information to \n blackmail national leaders in order to take over the world! \nIt is your job to escape from his hideout, protect the databases, \n and defeat him to prevent him from taking over the world!\n But be careful, you only have 5 lives. \n Each mistake will cost you a life. Good luck! "))
+    levelsScreenText.place(relx=0.04, rely = 0.085, relheight=0.5, relwidth=0.63)
+    level1Button = Button(levelsScreen, text = 'Level 1', command = lambda:checkLevel(1) , font = ('Impact', 20), borderwidth = 3, relief = 'raised',fg='#16213E')
+    level1Button.place(relx=0.8, rely= 0.23)
+    level2Button = Button(levelsScreen, text = 'Level 2', command = lambda:checkLevel(2), font = ('Impact', 20), borderwidth = 3, relief = 'raised', fg='#16213E')
+    level2Button.place(relx=0.8, rely=0.38)
+    level3Button = Button(levelsScreen, text = 'Level 3', command = lambda:checkLevel(3),  font = ('Impact', 20), borderwidth = 3, relief = 'raised', fg='#16213E')
+    level3Button.place(relx=0.8, rely =0.52)
+    level4Button = Button(levelsScreen, text = 'Level 4', command = lambda:checkLevel(4), font = ('Impact', 20), borderwidth = 3, relief = 'raised', fg='#16213E')
+    level4Button.place(relx=0.8, rely = 0.672145)
+    level5Button = Button(levelsScreen, text = 'Level 5', command = lambda:checkLevel(5), font = ('Impact', 20), borderwidth = 3, relief = 'raised', fg='#16213E')
+    level5Button.place(relx=0.8, rely=0.817143)
+    quitButton = Button(levelsScreen, text = 'Exit Application', command= startScreen.destroy , font = ('Impact', 20), borderwidth = 3, relief = 'raised', fg='#16213E')
+    quitButton.place(relx=0.76, rely= 0.085)
+    levelsNotifications = Label(levelsScreen, text ='', font=('Helvetica', 22),bg='#B5C9DB' )
+    levelsNotifications.place(relx =0.04, rely= 0.6, relwidth= 0.63, relheight = 0.3)
 
-});
-//checks rebus puzzle answers
-onEvent("rebusPuzzle1Check", "click", function( ) {
-  phrase = getText("rebusPuzzleInput");
-  if((phrase.toUpperCase())=="TOP SECRET" || (phrase.toUpperCase())=="TOPSECRET"){
-    hideElement("rebusPuzzle1");
-    hideElement("rebusPuzzle1Check");
-    setText("tryAgainLevel2", "");
-    setText("rebusPuzzleInput", "");
-    setText("rebusPuzzleTitle", "Rebus Puzzle #2");
-    showElement("rebusPuzzle2");
-    showElement("rebusPuzzle2Check");
-  } else {
-    setText("tryAgainLevel2", "Try again");
-  }
-});
-
-onEvent("rebusPuzzle2Check", "click", function( ) {
-  phrase = (getText("rebusPuzzleInput")).toLowerCase();
-  if(phrase == "four wheel drive" ||phrase == "fourwheeldrive"||phrase == "four wheeldrive" ||phrase == "fourwheel drive"){
-    hideElement("rebusPuzzle2");
-    hideElement("rebusPuzzle2Check");
-    setText("tryAgainLevel2", "");
-    setText("rebusPuzzleInput", "");
-    setText("rebusPuzzleTitle", "Rebus Puzzle #3");
-    showElement("rebusPuzzle3");
-    showElement("rebusPuzzleCheck3");
-    setProperty("tryAgainLevel2", "font-size", 22);
-  } else {
-    setText("tryAgainLevel2", "Try again, remember to only use letters");
-    setProperty("tryAgainLevel2", "font-size", 12);
-  }
-});
-
-onEvent("rebusPuzzleCheck3", "click", function( ) {
-  phrase = (getText("rebusPuzzleInput")).toLowerCase();
-  if(phrase == "too little too late" ||phrase == "too little, too late"||phrase == "toolittletoolate" ||phrase == "to little to late"||phrase == "toolittle toolate"||phrase == "tolittle tolate"){
-    hideElement("rebusPuzzle3");
-    hideElement("rebusPuzzleCheck3");
-    hideElement("rebusPuzzleInput");
-    setText("tryAgainLevel2", "Congratulations! Move on to the next level!");
-    hideElement("rebusPuzzleTitle");
-    setProperty("tryAgainLevel2", "font-size", 12);
-    showElement("levelsButtonlev2");
-    setProperty("level2Button", "background-color", "#20a215");
-    levelsCompleted[1]= true;
-  } else {
-    setText("tryAgainLevel2", "Try again");
-    setProperty("tryAgainLevel2", "font-size", 22);
-  }
-});
-//sends back to lobby
-onEvent("levelsButtonlev2", "click", function( ) {
-  setScreen("levelsScreen");
-});
-
-//level 3 code
-var randomChance;
-//hides unnescary elements
-hideElement("firstDoorLevel3");
-hideElement("secondDoorLevel3");
-hideElement("thirdDoorLevel3");
-hideElement("tryAgainLevel3");
-hideElement("airventsButton");
-hideElement("doorUnknownButton");
-hideElement("rightButton");
-hideElement("leftButton");
-hideElement("levelsButtonlev3");
-//begins game
-onEvent("beginButtonLevel3", "click", function( ) {
-  hideElement("beginButtonLevel3");
-  lives = 2;
-  setProperty("introTextLevel3", "height", 280);
-  showElement("firstDoorLevel3");
-  showElement("secondDoorLevel3");
-  showElement("thirdDoorLevel3");
-  showElement("tryAgainLevel3");
-  setText("introTextLevel3", "As soon as you escape the cell complex, you are met with three doors. In the first door: there is a room that is on fire. In the second door: there is a lion who has not eaten in 3 weeks. And in the third door, there is a vast ocean which goes on for hundreds of miles. Which door do you take to cross the path?");
-});
-//selects action based on choice
-onEvent("firstDoorLevel3", "click", function( ) {
-  removeLives();
-  hideElement("firstDoorLevel3");
-});
-onEvent("secondDoorLevel3", "click", function( ) {
-  hideElement("firstDoorLevel3");
-  hideElement("secondDoorLevel3");
-  hideElement("thirdDoorLevel3");
-  showElement("airventsButton");
-  hideElement("tryAgainLevel3");
-  showElement("doorUnknownButton");
-  setProperty("introTextLevel3", "height", 200);
-  setText("introTextLevel3", "Congrats! You have passed the tretcherous path! Now you see two options to pass through, the airvents or a door leading to an unknown room. Which will you choose?");
-});
-onEvent("thirdDoorLevel3", "click", function( ) {
-  removeLives();
-  hideElement("thirdDoorLevel3");
-});
-//action based on second choice
-onEvent("airventsButton", "click", function( ) {
-  hideElement("airventsButton");
-  hideElement("doorUnknownButton");
-  showElement("rightButton");
-  showElement("leftButton");
-  setText("introTextLevel3", "As you are crawling through the vents, you see a split in the path, one way leading left and one way leading right. Which way do you turn?");
-});
-
-onEvent("doorUnknownButton", "click", function( ) {
-  randomChance = randomNumber(0,1);
-  removeLives();
-  if(randomChance == 0){
-    hideElement("doorUnknownButton");
-    setProperty("airventsButton", "font-size", 12);
-    setText("airventsButton", "Go back and take the airvents");
-    setText("introTextLevel3", "Unfortunately, Technorobo's robot minions were in the room you entered and you got caught.");
-  } else {
-    hideElement("airventsButton");
-    hideElement("doorUnknownButton");
-    showElement("levelsButtonlev3");
-    levelsCompleted[2] = true;
-    setProperty("level3Button", "background-color", "#20a215");
-    setText("introTextLevel3", "Congratulations, you went through the door unoticed and made it past this level!");
-  }
-});
-//action based on possible third choice
-onEvent("leftButton", "click", function( ) {
-  removeLives();
-  setText("rightButton", "Go back and turn right");
-  hideElement("leftButton");
-  setText("introTextLevel3", "Unfortunately, as you are crawling through this path, you fall through the vent into Technorobo's bathroom and get caught!");
-});
-
-onEvent("rightButton", "click", function( ) {
-  hideElement("rightButton");
-  hideElement("leftButton");
-  showElement("levelsButtonlev3");
-  levelsCompleted[2] = true;
-  setProperty("level3Button", "background-color", "#20a215");
-  setText("introTextLevel3", "Congratulations you successfully made it past the airvents!");
-});
-//sends back to levels screen
-onEvent("levelsButtonlev3", "click", function( ) {
-  setScreen("levelsScreen");
-});
-
-//level4code
-var input;
-//checks answer to riddle
-hideElement("levelsButtonlev4");
-onEvent("checkButtonLevel4", "click", function( ) {
-  input = (getText("userInputRiddle")).toLowerCase();
-  showElement("levelsButtonlev4");
-  if(input == "clock" || input =="a clock"|| input == "aclock"){
-    levelsCompleted[3] = true;
-    setProperty("level4Button", "background-color", "#20a215");
-    setText("outputTextLevel4", "Congratulations! Go back the levels menu to complete your final challenge!");
-  } else{
-    setText("outputTextLevel4", "Try again");
-  }
-});
-//sends back to levels screen
-onEvent("levelsButtonlev4", "click", function(){
-  setScreen("levelsScreen");
-});
-
-//level 5 code
-hideElement("squareLevel5");
-var clicks = 0;
-
-//starts the game
-onEvent("beginButtonLevel5", "click", function( ) {
-  showElement("squareLevel5");
-  setProperty("squareLevel5", "x", randomNumber(10,310));
-  setProperty("squareLevel5", "y", randomNumber(10,440));
-  hideElement("beginButtonLevel5");
-  hideElement("textLevel5");
-});
-//resets the square
-onEvent("squareLevel5", "click", function( ) {
-  setProperty("squareLevel5", "x", randomNumber(10,310));
-  setProperty("squareLevel5", "y", randomNumber(10,440));
-  clicks = clicks + 1;
-  if(clicks >= 10){
-    setScreen("finishScreen");
-    stop = getTime();
-    setText("time", "Time: " + ((stop-start)/1000) + " seconds");
-}
-});
- 
+#on the event a user clicks a level to do, ensures they have not completed this level already and completed the neccessary levels
+def checkLevel(level):
+    global levelsNotifications
+    levelCount = 0
+    levelsNotifications.config(borderwidth=4, relief = 'flat', text ='')
+    for i in range(len(levelsCompleted)):
+        if levelsCompleted[i] == True:
+            levelCount += 1
+    if levelCount == level -1:
+        if level ==1:
+            openLevel1()
+        if level ==2:
+            openLevel2()
+        if level ==3:
+            openLevel3()
+        if level ==4:
+            openLevel4()
+        if level ==5:
+            openLevel5()
+    elif levelCount >= level:
+        levelsNotifications.config(text= 'You already completed this level!')
+        levelsNotifications.config(borderwidth=4, relief = 'solid')
+    else:
+        levelsNotifications.config(text = 'You must complete all previous level(s) \nbefore you attempt this level!')
+        levelsNotifications.config(borderwidth=4, relief = 'solid')
 
 
-//universal functions
-//checks to be sure previous levels are done
-function checkPreviousLevels (levelnumber){
-  if (levelsCompleted[levelnumber -2] == false){
-    setText("levelsText", "You must compete the previous level before starting this one!");
-  } else {
-    setScreens("Level"+levelnumber);
-  }
-}
-//sets correct screen
-function setScreens (level){
-  setScreen(level + "Screen");
-}
-//removes lives after mistakes by user
-function removeLives(){
-  if (lives == 2){
-    hideElement("lives2");
-    lives = lives -1;
-    setText("tryAgainLevel3", "Try Again!");
-  }else {
-    setScreen("youFailedScreen");
-    hideElement("doorUnknownButton");
-    hideElement("leftButton");
-    hideElement("rightButton");
-    hideElement("airventsButton");
-    showElement("beginButtonLevel3");
-    hideElement("firstDoorLevel3");
-    hideElement("secondDoorLevel3");
-    hideElement("thirdDoorLevel3");
-    hideElement("tryAgainLevel3");
-    showElement("lives2");
-    setText("rightButton", "Right");
-    setText("airventsButton", "Airvents");
-    setText("introTextLevel3", "Now that you've escaped the prison complex, you have to find a way to get out of Technorobo's house! But be careful you only have three lives on each attempt! Good Luck!");
-    lives =2;
-  }
-}
+countLvl1 = 1
+#level 1 code
+def openLevel1():
+    global name
+    binaryCodes = []
+    numCode = []
+    #creates a random binary number and corresponding decimal number
+    for i in range(4):
+        while True:
+            bin1 = (random.randint(0,1))
+            bin2 = (random.randint(0,1))
+            bin3 = (random.randint(0,1))
+            bin4 = (random.randint(0,1))
+            if((bin4*1)+(bin3*2)+(bin2*4)+(bin1*8)) <10:
+                binaryCodes.append(str(bin1) + str (bin2) + str(bin3) + str(bin4))
+                numCode.append(str((bin4*1)+(bin3*2)+(bin2*4)+(bin1*8)))
+                break
+    answerCode = numCode[0]+numCode[1]+numCode[2]+numCode[3]           
+    def on_codeInput_click(event):
+        if codeInput.get()=="Enter 4 Digit Code Here":
+            codeInput.delete(0, END)
+    def on_focus_out(event):
+        if codeInput.get == "":
+            codeInput.insert(0, "Enter 4 Digit Code Here")
+    def codeCheck():
+        #checks user code wwith correct answer
+        userCode = codeInput.get()
+        if (userCode) == answerCode:
+            level1Text.config(text='Correct! You escaped from your cell! Proceed to the next level to continue your journey!')
+            codeInput.place_forget()
+            checkButton.place_forget()
+            binarySequence.place_forget()
+            levelsScreenButton1.place(relx=0.5, rely=0.9, anchor = CENTER, relwidth = 0.12, relheight = 0.1)
+            levelsCompleted[0] = True
+        else:
+            level1Text.config(text='Oops! You lost a life! Try again!')
+            removeLives()
+    level1Screen = Toplevel(startScreen)
+    level1Screen.state('zoomed')
+    level1Screen.config(bg='#B5C9DB')
+    level1Text= Label(level1Screen, borderwidth = 4, relief = 'solid', fg = '#16213E', font = ('Helvetica', 22),text="Welcome to your adventure! You are currently held captive \n in a cell which Technorobo placed you in over a month ago! \n While you are laying on your bed, bored and tired, Technorobo comes over to your cell.")
+    level1Text.place(relx = 0.04, rely= 0.04, relheight= 0.4, relwidth=0.92)
+    levelsScreenButton1 = Button(level1Screen, text='Levels', command =lambda: level1Screen.withdraw(), font = ("Helvetica", 20), relief = 'raised', borderwidth =4)
+    checkButton = Button(level1Screen, text ='Check', command = codeCheck, font = ('Helvetica',20), borderwidth =3, relief='raised' )
+    codeInput=Entry(level1Screen)
+    codeInput.insert(0, "Enter 4 Digit Code Here")
+    codeInput.config(borderwidth=3, relief='groove', font=('Helvetica', 22), justify='center')
+    codeInput.bind('<FocusIn>', on_codeInput_click)
+    codeInput.bind('<FocusOut>', on_focus_out)
+    binarySequence = Label(level1Screen, justify='center', bg ='yellow', font = ('Helvetica', 20),borderwidth = 4, relief =  'solid', text = binaryCodes[0]+'\n' +binaryCodes[1]+'\n' + binaryCodes[2]+'\n' + binaryCodes[3]+'\n')
+    level1speechText = Label(level1Screen, text = ("Well, well, well, look who it is... my favorite inmate: "+ name +". If you still think you can escape, you're crazy! Well I gotta go, but enjoy your stay and hope you are comfortable! Mwa Ha Ha!"))
+    def continueLev1():
+        #continues through level
+        global countLvl1
+        if countLvl1 ==1:
+            level1Text.config(text = "Well, well, well, look who it is... my favorite inmate: "+ name +". \n If you still think you can escape, you're crazy! Well I gotta go, \n but enjoy your stay and hope you are comfortable!\n Mwa Ha Ha!")
+        elif countLvl1 ==2:
+            level1speechText.pack_forget()
+            level1Text.config(text='As Technorobo is laughing and walking off, a tiny slip of paper \nfalls out of his metallic pocket. You manage to reach it and find\n four sequences of numbers.')
+        elif countLvl1 ==3:
+            level1Text.config(text='You struggle to realize what these numbers mean, but then you realize they\n are binary numbers. Then, you notice a keypad right outside\n the cell, and you connect the dots!')
+        elif countLvl1 ==4:
+            lev1nextButton.place_forget()
+            binarySequence.place(relx = 0.5, rely = 0.57, anchor = CENTER, relwidth = 0.1, relheight=0.24)
+            codeInput.place(relx=0.5, rely = 0.75, relwidth =0.25, relheight =0.1, anchor = CENTER)
+            checkButton.place(relx=0.5, rely=0.9, anchor = CENTER, relwidth = 0.12, relheight = 0.1)
+            level1Text.config(text = 'Convert these binary numbers into decimal to unlock \nthe four digit code to use in the keypad and escape from your cell!')
+        countLvl1 +=1
+    lev1nextButton = Button(level1Screen, text = 'Next', command = continueLev1, relief = 'raised', borderwidth =3, font = ('Helvetica', 20)) 
+    lev1nextButton.place(relx=0.5, rely=0.9, anchor = CENTER, relwidth = 0.12, relheight = 0.1)
+    level1speechText.pack_forget()
+    binarySequence.pack_forget()
+    codeInput.pack_forget()
+    levelsScreenButton1.pack_forget()
+
+countLvl2 = 1
+def openLevel2():
+    global riddleTable
+    global sortRiddles
+    global easyButton2
+    global mediumButton2
+    global hardButton2
+    global level2Text
+    global riddlesToUse
+    global answer
+    global question
+    global riddleInput
+    global riddleCheck
+    global level2nextButton
+    global correct
+    global riddleCount
+    global totalRiddleCount
+    global levelsButton2
+    #on event user finishes level
+    def completeLevel():
+        global correct
+        global totalRiddleCount
+        global levelsButton2
+        global levelsCompleted
+        levelsCompleted[1]= True
+        levelsButton2.place(relx = 0.5, anchor=CENTER, rely =0.75, relwidth=0.2, relheight=0.1)
+        finish2Button.place_forget()
+        if correct == totalRiddleCount:
+            level2Text.config(text = ('Congratulations! You got all ' + str(totalRiddleCount) + " question(s) right! Great job! You can proceed to the next level!"))
+        else:
+            level2Text.config(text = ("Unfortunately, you got "+ str(totalRiddleCount-correct)+" questions wrong and lost that many lives! \nYou can proceed to the next level to continue your journey!"))
+                              
+    def on_riddleInput_click(event):
+        if riddleInput.get()=='Enter Answer Here':
+            riddleInput.delete(0, END)
+    def on_focus_out2(event):
+        if riddleInput.get == "":
+            riddleInput.insert(0, 'Enter Answer Here')
+
+    #displays random riddle
+    def displayQuestion():
+        global answer
+        global riddlesToUse
+        riddleInput.delete(0, END)
+        riddleInput.insert(0, 'Enter Answer Here')
+        easyButton2.place_forget()
+        mediumButton2.place_forget()
+        hardButton2.place_forget()
+        index = random.randint(0, (len(riddlesToUse))-1)
+        question = riddlesToUse.iat[index, 0]
+        answer = (str(riddlesToUse.iat[index, 2])).lower()
+        level2Text.config(text = question)
+        riddleInput.place(relx = 0.5, anchor=CENTER, rely =0.7, relwidth=0.2, relheight=0.1)
+        riddleCheck.place(relx = 0.5, anchor=CENTER, rely =0.85, relwidth=0.2, relheight=0.1)
+
+    #checks user answer
+    def checkRiddleAnswer():
+        global answer
+        global riddleCount
+        global correct
+        userAnswer = (str(riddleInput.get())).lower()
+        riddleCount -= 1
+        riddleInput.place_forget()
+        riddleCheck.place_forget()
+        if riddleCount != 0:
+            level2nextButton.place(relx = 0.5, anchor=CENTER, rely =0.75, relwidth=0.2, relheight=0.1)
+        else:
+            finish2Button.place(relx = 0.5, anchor=CENTER, rely =0.75, relwidth=0.2, relheight=0.1)
+        if ((userAnswer in answer) or (userAnswer == answer) or (answer in userAnswer)) and (userAnswer != ""):
+            correct += 1
+            level2Text.config(text = 'Correct!')    
+        else:
+            level2Text.config(text = 'Incorrect! The correct answer is: ' + answer + "!")
+            removeLives()
+        correctAnswer = correct
+        answer = ""
+
+
+    level2Screen = Toplevel(startScreen)
+    level2Screen.state('zoomed')
+    level2Screen.config(bg = '#B5C9DB')
+    levelsButton2 = Button(level2Screen, text = 'Levels', command = lambda:level2Screen.withdraw(), font = ('Helvetica',20), borderwidth =3, relief='raised')
+    level2Text = Label(level2Screen,  borderwidth = 4, relief = 'solid', fg = '#16213E', font = ('Helvetica', 22), text = 'Feeling relieved, you just escaped from your cell. However, \nyou are met with three doors. The first door is titled \n"Easy", the second titled "Medium", and the last door is titled "Hard".\n What could that mean?! ')
+    level2Text.place(relx = 0.05, rely = 0.05, relheight = 0.5, relwidth = 0.9)
+    easyButton2 = Button(level2Screen, text = 'Easy', command = lambda:sortRiddles('easy'), borderwidth = 3, relief = 'raised', fg = '#16213E', font = ('Helvetica', 22))
+    mediumButton2 = Button(level2Screen, text = 'Medium', command = lambda:sortRiddles('medium'), borderwidth = 3, relief = 'raised', fg = '#16213E', font = ('Helvetica', 22))
+    hardButton2 = Button(level2Screen, text = 'Hard', command = lambda:sortRiddles('hard'), borderwidth = 3, relief = 'raised', fg = '#16213E', font = ('Helvetica', 22))
+    riddleInput = Entry(level2Screen)
+    riddleInput.insert(0, 'Enter Answer Here')
+    riddleInput.bind('<FocusIn>', on_riddleInput_click)
+    riddleInput.bind('<FocusOut>', on_focus_out2)
+    riddleInput.config(borderwidth=3, relief='groove', font=('Helvetica', 22), justify='center')
+    riddleCheck = Button(level2Screen, text= 'Check', command = lambda:checkRiddleAnswer(),  relief = 'raised', borderwidth =3, font = ('Helvetica', 20))
+    finish2Button = Button(level2Screen, text = 'Finish!', command= lambda:completeLevel(), font = ('Helvetica',20), borderwidth =3, relief='raised')
+    def continueLvl2():
+        #continues through level 2
+        global countLvl2
+        if countLvl2 == 1:
+            level2Text.config(text='You look around the room and you see the word "Riddle Rooms" \nbolded and large above the doors. Below that, you see a set of instructions, which reads: \nEasy Easy Easy\n Medium Medium\n Hard')
+        elif countLvl2 ==2:
+            level2Text.config(text='You struggle to figure out what this means. Wait...the word easy repeated\n thrice, medium repeated twice, and hard repeated only once. And there are\n three corresponding doors; easy, medium, and hard. \nA bulb goes off in your head!')
+        elif countLvl2 ==3:
+            level2nextButton.place_forget()
+            easyButton2.place(relx = 0.5, anchor=CENTER, rely =0.65, relwidth=0.15, relheight=0.07)
+            mediumButton2.place(relx = 0.5, anchor=CENTER, rely =0.77, relwidth=0.15, relheight=0.07)
+            hardButton2.place(relx = 0.5, anchor=CENTER, rely =0.89, relwidth=0.15, relheight=0.07)
+            level2Text.config(text='You either answer 3 easy riddles, 2 medium riddles, or 1 hard riddle. \nWhich will you choose? Choose carefully!')
+        elif countLvl2 ==4:
+            displayQuestion()
+            level2nextButton.place_forget()
+        elif countLvl2 ==5:
+            displayQuestion()
+            level2nextButton.place_forget()
+        elif countLvl2 ==6:
+            displayQuestion()
+            level2nextButton.place_forget()
+            
+        countLvl2 += 1
+    level2nextButton = Button(level2Screen, text ='Next', command = lambda:continueLvl2(),  relief = 'raised', borderwidth =3, font = ('Helvetica', 20))
+    level2nextButton.place(relx = 0.5, anchor=CENTER, rely =0.75, relwidth=0.2, relheight=0.1)
+    easyButton2.pack_forget()
+    mediumButton2.pack_forget()
+    hardButton2.pack_forget()
+    riddleInput.pack_forget()
+    riddleCheck.pack_forget()
+    finish2Button.pack_forget()
+    levelsButton2.pack_forget()
+
+countLvl3 = 1
+def openLevel3():
+    #level 3 code
+    global countLvl3
+    global action
+    global choice1
+    global choice2
+    global choice3
+    level3Screen = Toplevel(startScreen)
+    level3Screen.state('zoomed')
+    level3Screen.config(bg = '#B5C9DB')
+    level3Text=Label(level3Screen, borderwidth = 4, relief = 'solid', fg = '#16213E', font = ('Helvetica', 22), text = 'After escaping from the riddle room and opening the exit door, you are in a massive room, \nthe walls of which are aquariums. There is tons of different water \nanimals: sharks, fish, coral, and more. However, something is not right with them...')
+    level3Text.place(relx = 0.05, rely = 0.05, relheight = 0.5, relwidth = 0.9)
+    lev3nextButton = Button(level3Screen, text = 'Next', command = lambda:continueLvl3(), relief = 'raised', borderwidth =3, font = ('Helvetica', 20))
+    lev3nextButton.place(relx = 0.5, anchor=CENTER, rely =0.75, relwidth=0.2, relheight=0.1)
+    waitItOutButton = Button(level3Screen, borderwidth = 3, relief = 'raised', fg = '#16213E', font = ('Helvetica', 22),text = 'Wait it Out', command = lambda:[setChoice1('wait'), continueLvl3()])
+    lasersButton = Button(level3Screen, borderwidth = 3, relief = 'raised', fg = '#16213E', font = ('Helvetica', 22),text = 'Test your skill', command = lambda:[setChoice1('lasers'), continueLvl3()])
+    exitAirventButton = Button(level3Screen,borderwidth = 3, relief = 'raised', fg = '#16213E', font = ('Helvetica', 22), text = 'Exit the Airvent', command = lambda:[setChoice1('exit'), continueLvl3()])
+    continueAirventButton = Button(level3Screen,borderwidth = 3, relief = 'raised', fg = '#16213E', font = ('Helvetica', 22), text = 'Continue', command = lambda:[setChoice1('continue'), continueLvl3()])
+    airventButton = Button(level3Screen,borderwidth = 3, relief = 'raised', fg = '#16213E', font = ('Helvetica', 22), text= 'Airvent', command = lambda:[setAction('airvent'),continueLvl3()])
+    doorButton = Button(level3Screen,borderwidth = 3, relief = 'raised', fg = '#16213E', font = ('Helvetica', 22), text = 'Door', command = lambda:[setAction('door'), continueLvl3()])
+    runButton = Button(level3Screen,borderwidth = 3, relief = 'raised', fg = '#16213E', font = ('Helvetica', 22), text = 'Run', command = lambda:[setChoice2('run'), continueLvl3()])
+    fightButton = Button(level3Screen, borderwidth = 3, relief = 'raised', fg = '#16213E', font = ('Helvetica', 22),text = 'Fight', command = lambda:[setChoice2('fight'), continueLvl3()])
+    runButton2 = Button(level3Screen,borderwidth = 3, relief = 'raised', fg = '#16213E', font = ('Helvetica', 22), text = 'Continue Running', command = lambda:[setChoice3('run'), continueLvl3()])
+    hideButton = Button(level3Screen,borderwidth = 3, relief = 'raised', fg = '#16213E', font = ('Helvetica', 22), text = 'Hide', command = lambda:[setChoice3('hide'), continueLvl3()])
+    punchButton = Button(level3Screen,borderwidth = 3, relief = 'raised', fg = '#16213E', font = ('Helvetica', 22), text = 'Double Punch', command = lambda:[setChoice3('punch'), continueLvl3()])
+    backkickButton = Button(level3Screen,borderwidth = 3, relief = 'raised', fg = '#16213E', font = ('Helvetica', 22), text = 'Back Kick', command = lambda:[setChoice3('backkick'), continueLvl3()])
+    levelsButton3 = Button(level3Screen,borderwidth = 3, relief = 'raised', fg = '#16213E', font = ('Helvetica', 22), text= 'Levels', command = lambda:level3Screen.withdraw())
+    global lives
+    def continueLvl3():
+        #continues through level 3
+        global choice1
+        global countLvl3
+        global action
+        global lives
+        if countLvl3 ==1:
+            level3Text.config(text ='The animals and plants in the aquarium look electronic...almost like robots.\n "Nevermind" you murmur to yourself. You need to focus on escaping from here.')
+        if countLvl3 ==2:
+            level3Text.config(text = 'You survey the large room and see two possible escape options.\n A door or an airvent. Which will you choose to exit through?')
+            lev3nextButton.place_forget()
+            doorButton.place(relx = 0.5, anchor=CENTER, rely =0.65, relwidth=0.15, relheight=0.1)
+            airventButton.place(relx = 0.5, anchor=CENTER, rely =0.80, relwidth=0.15, relheight=0.1)
+        if countLvl3 ==3:
+            lev3nextButton.place(relx = 0.5, anchor=CENTER, rely =0.75, relwidth=0.2, relheight=0.1)
+            doorButton.place_forget()
+            airventButton.place_forget()
+            if action == 'airvent':
+                level3Text.config(text = 'You remove the vent cover from the airvent quietly, and manage to pull \nyourself up into the vent and place the vent cover back on the airvent.')
+            if action == 'door':
+                level3Text.config(text = 'You peep through the window on the door and see another \n empty hallway, but there appear to be movement sensors placed against the wall.')
+        if countLvl3 ==4:
+            lev3nextButton.place_forget()
+            if action == 'airvent':
+                exitAirventButton.place(relx = 0.5, anchor=CENTER, rely =0.65, relwidth=0.15, relheight=0.1)
+                continueAirventButton.place(relx = 0.5, anchor=CENTER, rely =0.80, relwidth=0.15, relheight=0.1)
+                level3Text.config(text = 'You crawl through the airvents until you find \n an airvent escape which seems to lead to the bathroom. \nWould you like to consider continuing down the airvent or exit\n the airvent into this empty bathroom?')
+            if action == 'door':
+                waitItOutButton.place(relx = 0.5, anchor=CENTER, rely =0.65, relwidth=0.15, relheight=0.1)
+                lasersButton.place(relx = 0.5, anchor=CENTER, rely =0.80, relwidth=0.15, relheight=0.1)
+                level3Text.config(text ='You open the door and instantly you see the motion sensors activate. Then, lasers\n appear through the entirety of the hallway.  However, then for around 30 seconds,\n the lasers dissapear. You wonder why this happened and then you\n see a signboard directly above you which says "Automatic Maintenance every 45 minutes". \nYou can either wait out the next 45 minutes until the lasers dissapear and then sprint\n as fast as you can to the end of the corridor, or, test out your dodging \nabilites against the moving lasers. What will you do?')
+        if countLvl3 ==5:
+            waitItOutButton.place_forget()
+            lasersButton.place_forget()
+            exitAirventButton.place_forget()
+            continueAirventButton.place_forget()
+            lev3nextButton.place(relx = 0.5, anchor=CENTER, rely =0.75, relwidth=0.2, relheight=0.1)
+            if choice1 == 'wait':
+                chance = random.randint(0,1)
+                if chance == 0:
+                    level3Text.config(text = 'You sit down near the door and doze off while waiting for the timer to run out. \nYou get startled awake by the sound of the laser system shutting down and you realize you \nhave to sprint through the hallway since you are already a tad delayed. \n You sprint as fast as you can, and as soon as you reach the other end of the hallway, the lasers turn back on. \n You barely made it!' )
+                if chance == 1:   
+                    removeLives() 
+                    level3Text.config(text = 'You sit down near the door and doze off while waiting for the timer to run out. \nYou get startled awake by the sound of the laser system shutting down and you\n realize you have to sprint through the hallway since you are already a tad delayed. \n You sprint as fast as you can, however, since you were just focused on making it to the other end of the hallway,\n you did not see a loose tile, and you slipped and fell. \n This delayed you and you were unable to reach the other end of the hallway quickly enough to dodge the lasers. \nYou lost one life.')
+            if choice1 == 'lasers':
+                chance1 = random.randint(0,1)
+                if chance1 ==0:
+                    level3Text.config(text = 'You gather your courage and start to move down the hallway. \nYou continously dodge, jump, and slide under the different moving lasers. \n Somehow you manage to make it to the end of the hallway unharmed! \n Way to go!')
+                if chance1 ==1:
+                    removeLives()
+                    level3Text.config(text = 'You gather your courage and start to move down the hallway. \nYou continously dodge, jump, and slide under the different moving lasers. \n Near the middle of a hallway. You encounter a laser lying close to the ground which is intersected perpendicularly with another laser which is higher up. You are trying to figure out how to get past these lasers, and you don"t notice another lasers which was moving toward you from behind, and you get hit by it/ \n. Unfortunately, you lost a life.')
+            if choice1 == 'continue':
+                removeLives()
+                level3Text.config(text = 'You continue down the airvent and end up reaching a dead end with one final vent \nexit right below you. The lights in the room are off, so you remove the vent cover and\n quietly drop down into the room as the automated lights activate. Unfortunately, the robot guard\n gets activated by this and spots you. You try to run away, but your speed is  \n match for the robot. \n He ends up catching you and you lose a life.')
+            if choice1 == 'exit':
+                level3Text.config(text = 'You drop down into the empty and silent bathroom.\n You peak out the door and it seems to be a conveniently empty hallway, with minimal\n surveillance. You are a bit wary, however, you are too determined to keep going. You reach the end of the hall\n unharmed and are met with a door.')
+        if countLvl3 == 6:
+            lev3nextButton.place_forget()
+            runButton.place(relx = 0.5, anchor=CENTER, rely =0.65, relwidth=0.15, relheight=0.1)
+            fightButton.place(relx = 0.5, anchor=CENTER, rely =0.8, relwidth=0.15, relheight=0.1)
+            level3Text.config(text='After these past events, you go through the unknown door and end up in a massive room. \nImmediately, the door locks behind you and you can tell you made a huge mistake. \n The massive room is filled  with all kinds of technological weapons and devices, \nas well as all kinds of safety precautions. \n Your uninvited presence in the room triggers an alarm sound, and immediately robot \nguards swarm into the room. You count around 6 of them. \nYou have to quickly decide whether you want to run away or try to fight them.\n Which will you choose?')
+        if countLvl3 == 7:
+            lev3nextButton.place_forget()
+            runButton.place_forget()
+            fightButton.place_forget()
+            if choice2 == 'run':
+                runButton2.place(relx = 0.5, anchor=CENTER, rely =0.65, relwidth=0.15, relheight=0.1)
+                hideButton.place(relx = 0.5, anchor=CENTER, rely =0.8, relwidth=0.15, relheight=0.1)
+                level3Text.config(text='You sprint away as fast as possible in the opposite direction of the now \nlocked door in which you came into the room. You manage to reach the door on the other side of the room\n just in time and burst through the door and find a long hallway, leading to a winding staircase. You continue \nto run and reach the stairs, with the guards trailing right behind you. \nHowever, you are running out of breath as you reach the top of the stairs, so you choose to either hide or \ncontinue running. Which will you choose?')
+            if choice2 == 'fight':
+                punchButton.place(relx = 0.5, anchor=CENTER, rely =0.65, relwidth=0.15, relheight=0.1)
+                backkickButton.place(relx = 0.5, anchor=CENTER, rely =0.8, relwidth=0.15, relheight=0.1)
+                level3Text.config(text = 'You get into your fighting stance as the guards come rushing at you. For \na minute or so, you manage to dodge the robots and lay down minor hits\n on them. However, you start to realize that they are following the lead \nof one specific robot, who was a little bigger than the rest. \n You think that if maybe you can take down the robot leader, maybe the other robots won"t know \nwhat to do. You try to find a perfect oppurtunity and it finally presents itself\n. The leader robot rushes at you and you have the ability to hit him with a double punch or a flying back kick. What will you use?')
+        if countLvl3 == 8:
+            punchButton.place_forget()
+            backkickButton.place_forget()
+            runButton2.place_forget()
+            hideButton.place_forget()
+            lev3nextButton.place(relx = 0.5, anchor=CENTER, rely =0.75, relwidth=0.2, relheight=0.1)
+            if choice3 == 'punch':
+                level3Text.config(text = 'You manage to fool the robot leader with your first jab and land a big hit on\n him with your second punch. Immediately, he flops to the ground. Then all the robot guards, \ngo stationary, as if they can no longer act without commands! Your plan worked! Congratulations!')
+            elif choice3 == 'backkick':
+                level3Text.config(text = 'As the robot leader is running toward you jump and spin in the air and extend your\n leg in a kicking motion toward the robot leader. You can feel your impact on\n the robot and his body go limp. He flops to the floor and immediately, all the robot guards go stationary,\n as if they can no longer take commands! Your plan worked! Congrats')
+            elif choice3 == 'run':
+                level3Text.config(text = 'You gather yourself and continue to sprint toward\n the end of the hallway atop the stairs, where there is a door. You barely manage to make it to the\n door, open, and lock it just in time for you to escape the bots! Wooh! That \nwas a close one! Congratulations!')
+            elif choice3 == 'hide':
+                level3Text.config(text = 'As you run up \nthe stairs, you spot a bush alongst the wall. You run up\n the stairs and behind the bush as the\n robots come up the stairs. They look confused in not finding you and head in the other \ndirection to check if you had gone there. You manage to silently sneak into the door at\n the end of the hallway! Your plan worked! Congratulations!')
+        if countLvl3 == 9:
+            levelsCompleted[2] = True
+            levelsButton3.place(relx = 0.5, anchor=CENTER, rely =0.65, relwidth=0.15, relheight=0.1)
+            lev3nextButton.place_forget()
+            level3Text.config(text = 'Congratulations! You made it out of this level with ' + str(lives)+ " lives left. \nContinue to the next level in the levels section to continue your journey!")
+        countLvl3 +=1
+    #sets choices user makes
+    def setAction(whichAction):
+        global action
+        action = whichAction
+    def setChoice1(whichChoice):
+        global choice1
+        choice1 = whichChoice
+    def setChoice2(whichChoice2):
+        global choice2
+        choice2 = whichChoice2
+    def setChoice3(whichChoice3):
+        global choice3 
+        choice3 = whichChoice3
+
+countLvl4 = 1
+rebusCount =1
+def openLevel4():
+    global countLvl4
+    global rebusCount
+    #level 4 code
+    def on_rebusInput_click(event):
+        if rebusInput.get()=="Enter your answer here!":
+            rebusInput.delete(0, END)
+    def on_focus_out1(event):
+        if rebusInput.get == "":
+            rebusInput.insert(0, "Enter your answer here!")
+    def checkRebusPuzzleAnswer():
+        #checks user answer
+        global rebusCount
+        userAnswer = (rebusInput.get()).lower()
+        if rebusCount == 1:
+            if userAnswer == 'top secret':
+                level4Text.config(text= 'Correct!')
+            else:
+                removeLives()
+                level4Text.config(text = 'Incorrect! The correct answer is: Top Secret')
+        elif rebusCount ==2:
+            if userAnswer == 'scrambled eggs':
+                level4Text.config(text = 'Correct!')
+            else:
+                removeLives()
+                level4Text.config(text = 'Incorrect! The correct answer is: Scrambled Eggs')
+        rebusCount +=1
+        rebusInput.delete(0, END)
+        rebusInput.insert(0, 'Enter your answer here!' )
+    level4Screen = Toplevel(startScreen)
+    level4Screen.state('zoomed')
+    level4Screen.config(bg = '#B5C9DB')
+    level4Text = Label(level4Screen, borderwidth = 4, relief = 'solid', fg = '#16213E', font = ('Helvetica', 22), text = 'The room you entered was dark and quiet. You try\n to find the light switch and turn on the lights,\n and you manage to do so. When you turn on the lights, you see a room\n full of computers and different screens, including surveillance cameras. You realize \nthat this may be your oppurtunity to delete the database which Technorobo\n illegaly has! You lucked out! The room you \nstumbled into just so happened to be the technology room!')
+    level4Text.place(relx = 0.05, rely = 0.05, relheight = 0.5, relwidth = 0.9)
+    lev4nextButton = Button(level4Screen, command = lambda:continueLvl4(), text = 'Next', relief = 'raised', borderwidth =3, font = ('Helvetica', 20))
+    lev4nextButton.place(relx = 0.5, anchor=CENTER, rely =0.75, relwidth=0.2, relheight=0.1)
+    rebusPuzzle1Path = "C:/Users/sanja/Downloads/rebuspuzzle1.png"
+    rebusPuzzle2Path = "C:/Users/sanja/Downloads/rebuspuzzle2.jpg"
+    rebusPuzzle_1 = Image.open(rebusPuzzle1Path)
+    rebusPuzzle_2= Image.open(rebusPuzzle2Path)
+    rebusPuzzle1 = ImageTk.PhotoImage(rebusPuzzle_1)
+    rebusPuzzle2 = ImageTk.PhotoImage(rebusPuzzle_2)
+    rebusPuzzleImage = Label(level4Screen, borderwidth =3, relief = 'solid')
+    checkButton= Button(level4Screen,  font = ('Helvetica',20), borderwidth =3, relief='raised', text = 'Check Your Answer', command = lambda:[checkRebusPuzzleAnswer(), continueLvl4()])
+    rebusInput = Entry(level4Screen)
+    rebusInput.insert(0, 'Enter your answer here!')
+    rebusInput.bind('<FocusIn>', on_rebusInput_click)
+    rebusInput.bind('<FocusOut>', on_focus_out1)
+    rebusInput.config(borderwidth=3, relief='groove', font=('Helvetica', 22), justify='center')
+    levelsScreen4Button = Button(level4Screen, text ='Levels', command = lambda:level4Screen.withdraw())
+    def continueLvl4():
+        #continues through level 4
+        global levelsCompleted
+        global countLvl4
+        if countLvl4==1:
+            level4Text.config(text = 'This is your big oppurtunity. You boot up the computers and they"re locked. \nOf course Technorobo would not leave all the senstive information open! To log in to the computers\n you must complete a rebus puzzle. A rebus puzzle is an image which contains words in \nspecific positions and order to represent a phrase. I guess Technorobo loves his puzzles!')
+        if countLvl4 ==2:
+            level4Text.config(text = 'You must solve the following rebus puzzles to log in to the computer. \nDo not worry about capitalization but ensure you are spelling correctly!')
+            lev4nextButton.place_forget()
+            level4Text.place(relx = 0.05, rely = 0.05, relheight = 0.3, relwidth = 0.9)
+            rebusPuzzleImage.config(image = rebusPuzzle1)
+            rebusPuzzleImage.place(relx=0.5, rely =0.6, anchor = CENTER)
+            rebusInput.place(relx=0.5, rely=0.8, anchor = CENTER)
+            checkButton.place(relx=0.5, rely=0.9, anchor = CENTER)
+        if countLvl4 == 3:
+            lev4nextButton.place(relx = 0.5, anchor=CENTER, rely =0.75, relwidth=0.2, relheight=0.1)
+            rebusPuzzleImage.place_forget()
+            rebusInput.place_forget()
+            checkButton.place_forget()
+        if countLvl4 == 4:
+            lev4nextButton.place_forget()
+            level4Text.config(text = 'Your next rebus puzzle:')
+            rebusPuzzleImage.config(image = rebusPuzzle2)
+            rebusPuzzleImage.place(relx=0.5, rely =0.6, anchor = CENTER)
+            rebusInput.place(relx=0.5, rely=0.8, anchor = CENTER)
+            checkButton.place(relx=0.5, rely=0.9, anchor = CENTER)
+        if countLvl4 ==5:
+            lev4nextButton.place(relx = 0.5, anchor=CENTER, rely =0.75, relwidth=0.2, relheight=0.1)
+            rebusPuzzleImage.place_forget()
+            rebusInput.place_forget()
+            checkButton.place_forget()
+        if countLvl4 ==6:
+            lev4nextButton.place_forget(relx = 0.5, anchor=CENTER, rely =0.75, relwidth=0.2, relheight=0.)
+            levelsScreen4Button.place(relx = 0.5, anchor=CENTER, rely =0.75, relwidth=0.2, relheight=0.1)
+            levelsCompleted[3] = True
+            level4Text.config(text = 'Congratulations! You made it past this level with ' + str(lives) + ' lives left.\n Go back to the levels menu to finish your journey!')
+        countLvl4+=1
+
+countLvl5 = 1
+finalChoice= None
+finalChoice2 = None
+def openLevel5():
+    #level 5 code
+    global countLvl5
+    global finalChoice
+    global finalChoice2
+    level5Screen = Toplevel(startScreen)
+    level5Screen.state('zoomed')
+    level5Screen.config(bg = '#B5C9DB')
+    level5Text = Label(level5Screen, text = 'You successfully logged into the computer. Now you just need to get to the files and delete them! Perfect, there is a file named "Illegal Database"! Thanks Technorobo!')
+    lev5nextButton = Button(level5Screen, text = 'Next', command = lambda:continueLvl5())
+    level5Text.place(relx = 0.5, anchor=CENTER, rely =0.75, relwidth=0.2, relheight=0.1)
+    lev5nextButton.place(relx = 0.5, anchor=CENTER, rely =0.75, relwidth=0.2, relheight=0.1)
+    wireButton = Button(level5Screen, text = 'Take the 50/50 Chance', command = lambda:[setChoice('wire'), continueLvl5()])
+    fightFinalButton = Button(level5Screen, text = 'Fight Technorobo', command = lambda:[setChoice('fight'), continueLvl5()])
+    redButton = Button(level5Screen, text = 'Red', command = lambda:[setChoice2('red'), continueLvl5()])
+    greenButton = Button(level5Screen, text = 'Green', command = lambda:[setChoice2('green'), continueLvl5()])
+    startFightButton = Button(level5Screen, text = 'Start Fight', command = lambda: [openBossFight(), level5Screen.withdraw()])
+    #sets user choices
+    def setChoice(wchoice):
+        global finalChoice
+        finalChoice = wchoice
+    def setChoice2(whchoice):
+        global finalChoice2
+        finalChoice2 = whchoice
+    def continueLvl5():
+        #continues through level 5
+        global countLvl5
+        global finalChoice
+        global finalChoice2
+        if countLvl5 == 1:
+            level5Text.config(text = 'You click the delete button next to the file, and a loading screen pops up. "2 Hours Left.." it says. It"s gonna be a long wait.')
+        if countLvl5 == 2:
+            level5Text.config(text = 'At that moment...the door bursts open...and you see the looming shadow of Technorobo! Oh no!')
+        if countLvl5 ==3:
+            level5Text.config(text = 'What should you do?! Then...all of a sudden...he goes still...almost like his battery is dead...then you remember, Automatic Maintainance! It"s for everything electronic in the base.')
+        if countLvl5 == 4:
+            level5Text.config(text = 'You have an idea...you lay down Technorobo and open his control panel. You see two wires...a red one and a green one, just like in the movies. One wire will deactivate Technorobo permanently, and one will cause him to exploding, harming you, but remember the database is safe and Technorobo can be repaired. But, this is all in, if you choose the wrong wire, you lose all your lives, or you can win the whole game.')
+        if countLvl5 ==5: 
+            lev5nextButton.place_forget()
+            wireButton.place()
+            fightFinalButton.place()
+            level5Text.config(text = 'Then you think of another idea...wait for Technorobo to reboot and take him on in a fight! Which will you choose to do?')
+        if countLvl5 == 6:
+            wireButton.place_forget()
+            fightFinalButton.place_forget()
+            if finalChoice == 'wire':
+                redButton.place()
+                greenButton.place()
+                level5Text.config(text='Which wire do you want to cut, red or green? It"s a 50/50 chance!')
+            if finalChoice == 'fight':
+                startFightButton.place()
+                level5Text.config(text = 'Best of luck in your fight!')
+        if countLvl5 == 7:
+            chance5 = random.randint(0,1)
+            if chance5 == 0:
+                youWin()
+            if chance5 == 1:
+                gameOver()
+        countLvl5 +=1
+
+def openBossFight():
+    #boss fight
+    gamecount =0
+    running = True
+    def move_up(event):
+        playerIcon.place(x = playerIcon.winfo_x(), y= playerIcon.winfo_y()-25)
+    def move_down(event):
+        playerIcon.place(x = playerIcon.winfo_x(), y= playerIcon.winfo_y()+25)
+    def move_left(event):
+        playerIcon.place(x = playerIcon.winfo_x()-25, y= playerIcon.winfo_y())
+    def move_right(event):
+        playerIcon.place(x = playerIcon.winfo_x()+25, y= playerIcon.winfo_y())
+    xVelocity = 7
+    yVelocity =8
+    xVelocity1 = 3
+    yVelocity1 =2
+    bossFightScreen = Toplevel(startScreen)
+    bossFightScreen.state('zoomed')
+    bossFightScreen.bind("<w>", move_up)
+    bossFightScreen.bind("<a>", move_left)
+    bossFightScreen.bind("<s>", move_down)
+    bossFightScreen.bind("<d>", move_right)
+    bossFightScreen.bind("<Up>", move_up)
+    bossFightScreen.bind("<Left>", move_left)
+    bossFightScreen.bind("<Down>", move_down)
+    bossFightScreen.bind("<Right>", move_right)
+    playerFigurePath = 'C:/Users/sanja/Downloads/2062361-200.png'
+    player_Figure = Image.open(playerFigurePath)
+    player_Figure_resized = player_Figure.resize((60,60), Image.LANCZOS)
+    playerFigure = ImageTk.PhotoImage(player_Figure_resized)
+    playerIcon = Label(bossFightScreen,  image = playerFigure)
+    playerIcon.image = playerFigure
+    villainPath = 'C:/Users/sanja/Downloads/hfsfsadf.webp'
+    villain_Figure = Image.open(villainPath)
+    villain_Figure_resized = villain_Figure.resize((110,110), Image.LANCZOS)
+    villain_Icon = ImageTk.PhotoImage(villain_Figure_resized)
+    gemPath = "C:/Users/sanja/Downloads/purple-gem-icon-isolated-on-white-background-free-vector.jpg"
+    gem_Figure = Image.open(gemPath)
+    gem_Figure_resized = gem_Figure.resize((40,40), Image.LANCZOS)
+    gem_Icon = ImageTk.PhotoImage(gem_Figure_resized)
+    movementCanvas = Canvas(bossFightScreen)
+    movementCanvas.pack(fill='both', expand = True)
+    villainIcon = movementCanvas.create_image(0,0, image = villain_Icon, anchor = NW)
+    gemIcon = movementCanvas.create_image(0,0, image = gem_Icon, anchor = 'nw')
+    movementCanvas.villain_Icon = villain_Icon
+    movementCanvas.gem_Icon = gem_Icon
+    playerIcon.place(x=900, y=210)
+    playerIcon.lift()
+    #infinite loop to run program
+    while running:
+        coordinates = movementCanvas.coords(villainIcon)
+        coordinates1 = movementCanvas.coords(gemIcon)
+        x_coordinate = playerIcon.winfo_x()
+        y_coordinate = playerIcon.winfo_y()
+        if(x_coordinate>=1320):
+            playerIcon.place(1320, x_coordinate)
+        if(y_coordinate>=690):
+            playerIcon.place(x_coordinate, 690)
+        if(coordinates[0]>= 1320 or coordinates[0]<0):
+            xVelocity = -xVelocity
+        if(coordinates[1]>=690 or coordinates[1]<0):
+            yVelocity = -yVelocity
+        if(coordinates1[0]>= 1320 or coordinates[0]<0):
+            xVelocity1 = -xVelocity1
+        if(coordinates1[1]>=690 or coordinates[1]<0):
+            yVelocity1 = -yVelocity1
+        movementCanvas.move(villainIcon, xVelocity, yVelocity)
+        movementCanvas.move(gemIcon, xVelocity1, yVelocity1)
+        bossFightScreen.update()
+        if ((x_coordinate+60)-(coordinates[0]+98) in range(-50, 50) ) and ((y_coordinate+60)-(coordinates[0]+98) in range (-50,50)):
+            removeLives()
+            bossFightScreen.withdraw()
+        if ((x_coordinate+60)-(coordinates1[0]+30) in range(-32, 32) ) and ((y_coordinate+60)-(coordinates1[0]+30) in range (-32,32)):
+            gamecount +=1
+            if gamecount ==10:
+                youWin()
+                bossFightScreen.withdraw()
+                running = False
+        time.sleep(0.01)
+
+
+
+def gameOver():
+    # on event user loses all their livs
+    gameOverScreen = Toplevel(startScreen)
+    gameOverScreen.state('zoomed')
+    gameOverGraphic = Label(gameOverScreen)
+    gameOverText = Label(gameOverScreen, text = 'You lost all your lives! Good try!')
+    gameOverText.pack()
+
+def youWin():
+    #on event user wins
+    youWinScreen = Toplevel(startScreen)
+    youWinScreen.state('zoomed')
+    youWinText = Label(youWinScreen, text = 'You win')
+    youWinText.pack()
+
+def removeLives():
+    #removes lives for incorrect anxwer
+    global lives
+    lives -= 1
+    if lives ==0:
+        gameOver()
+
+
+#begins the game and code for the first screen
+startScreen = Tk()
+startScreen.state('zoomed')
+startScreen.config(bg='#B5C9DB')
+titleText = Label(startScreen, text = ' Escape the Technoverse! ', font=("System",55, "bold"), fg='#5D5F9B', borderwidth=5, relief = 'raised')
+titleText.place(relx=0.5, rely=0.25, anchor=CENTER)
+nameInput = Entry(startScreen, font=("Impact", 20), justify ='center', borderwidth =7, relief= 'sunken',  fg='#16213E')
+nameInput.insert(0, "Enter Name Here")
+nameInput.place(relx=0.5, rely=0.5, anchor=CENTER)
+
+def on_nameInput_click(event):
+    if nameInput.get()=="Enter Name Here":
+        nameInput.delete(0, END)
+def on_focus_out2(event):
+    if nameInput.get == "":
+        nameInput.insert(0, "Enter Name Here")
+nameInput.bind('<FocusIn>', on_nameInput_click)
+nameInput.bind('<FocusOut>', on_focus_out2)
+button = Button(startScreen, text = 'Start!', font=("Impact", 17), borderwidth =5, relief = 'raised',  fg='#16213E')
+button.config(command=startButtonClick)
+button.place(relx=0.5, rely=0.75, anchor=CENTER)
+startScreen.mainloop()  
+
+
+
 
 
